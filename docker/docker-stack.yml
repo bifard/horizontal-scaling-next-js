@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  nginx:
+    image: nginx:1.26.2
+    ports:
+      - "${NGINX_PORT}:80"
+    environment:
+      - APP_PORT_LOCAL=${APP_PORT_LOCAL}
+    volumes:
+      - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
+      - next_static:/static:ro
+    command: /bin/bash -c "envsubst '${APP_PORT_LOCAL}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    networks:
+      - alnet
+
+networks:
+  alnet:
+    external: true
+
+volumes:
+  next_static:
