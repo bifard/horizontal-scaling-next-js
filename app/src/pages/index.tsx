@@ -16,8 +16,9 @@ const geistMono = Geist_Mono({
 
 export default function Home() {
   useEffect(() => {
-    console.log("version 2");
+    console.log("version 3");
   }, []);
+  console.log("version 3 server");
   return (
     <>
       <Head>
