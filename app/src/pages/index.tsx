@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 
 export default function Home() {
   useEffect(() => {
-    console.log("version 3");
+    console.log("version 4");
   }, []);
-  console.log("version 3 server");
+  console.log("version 4 server");
   return (
     <>
       <Head>
@@ -86,4 +86,13 @@ export default function Home() {
       </div>
     </>
   );
+}
+
+export async function getServerSideProps() {
+  console.log("version 4 server");
+  return {
+    props: {
+      version: "4",
+    },
+  };
 }
