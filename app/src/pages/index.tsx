@@ -28,46 +28,8 @@ const Home = ({ version }: InferGetServerSidePropsType<typeof getServerSideProps
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className={`${styles.page} ${geistSans.variable} ${geistMono.variable}`}>
-        <main className={styles.main}>
-          <Image className={styles.logo} src="/next.svg" alt="Next.js logo" width={180} height={38} priority />
-          <ol>
-            <li>
-              Get started by editing <code>src/pages/index.tsx</code>.
-            </li>
-            <li>Save and see your changes instantly.</li>
-          </ol>
-          <p>Version: {version}</p>
-          <div className={styles.ctas}>
-            <a
-              className={styles.primary}
-              href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Image className={styles.logo} src="/vercel.svg" alt="Vercel logomark" width={20} height={20} />
-              Deploy now
-            </a>
-            <a
-              href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.secondary}
-            >
-              Read our docs
-            </a>
-          </div>
-        </main>
-        <footer className={styles.footer}>
-          <a
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image aria-hidden src="/file.svg" alt="File icon" width={16} height={16} />
-            Learn
-          </a>
-        </footer>
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <h1 style={{ color: "red", fontSize: "4rem", fontWeight: "bold" }}>Version: {version}</h1>
       </div>
     </>
   );
@@ -77,7 +39,7 @@ export async function getServerSideProps() {
   console.log("version 5 server");
   return {
     props: {
-      version: "8",
+      version: "9",
     },
   };
 }
