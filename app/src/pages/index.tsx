@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Geist, Geist_Mono } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import { useEffect } from "react";
+import { InferGetServerSidePropsType } from "next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,11 +15,11 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export default function Home() {
+const Home = ({ version }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   useEffect(() => {
-    console.log("version 4");
+    console.log("version 5");
   }, []);
-  console.log("version 4 server");
+  console.log("version 5 server");
   return (
     <>
       <Head>
@@ -36,7 +37,7 @@ export default function Home() {
             </li>
             <li>Save and see your changes instantly.</li>
           </ol>
-
+          <p>Version: {version}</p>
           <div className={styles.ctas}>
             <a
               className={styles.primary}
@@ -86,13 +87,13 @@ export default function Home() {
       </div>
     </>
   );
-}
-
+};
+export default Home;
 export async function getServerSideProps() {
-  console.log("version 4 server");
+  console.log("version 5 server");
   return {
     props: {
-      version: "4",
+      version: "5",
     },
   };
 }
