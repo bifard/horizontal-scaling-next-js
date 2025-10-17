@@ -1,7 +1,27 @@
 version: "3.8"
 
 services:
+  app:
+    image: horizont-app:${GH_SHA}
+    ports:
+      - "9000:${APP_PORT_LOCAL}"
+    environment:
+      - GH_SHA=${GH_SHA}
+    volumes:
+      - next_static:/app/.next/static:ro
+    networks:
+      - alnet
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+      restart_policy:
+        condition: on-failure
   nginx:
+    depends_on:
+      - app
     image: nginx:1.26.2
     ports:
       - "${NGINX_PORT}:80"
@@ -10,7 +30,7 @@ services:
     volumes:
       - ./nginx/nginx.conf.template:/etc/nginx/nginx.conf.template:ro
       - next_static:/static:ro
-    command: /bin/bash -c "envsubst '${APP_PORT_LOCAL}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    command: /bin/bash -c "envsubst '$$APP_PORT_LOCAL' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
     networks:
       - alnet
 

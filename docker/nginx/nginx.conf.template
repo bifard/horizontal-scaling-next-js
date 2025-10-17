@@ -3,9 +3,13 @@ events {
 }
 
 http {
-    #upstream app_servers {
-    #    server app:$APP_PORT_LOCAL;
-    #}
+    # ← ДОБАВЬТЕ ЭТО!
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    upstream app_servers {
+        server app:$APP_PORT_LOCAL;
+    }
 
     log_format custom '$remote_addr - $remote_user [$time_local] "$request" '
                       '$status $body_bytes_sent "$http_referer" '
@@ -21,17 +25,17 @@ http {
         # Раздача статики Next из общего volume
         location ~ ^/(?<build_id>[^/]+)/_next/static/(?<path>.+)$ {
             root /;
-            access_log off;
+            access_log /var/log/nginx/access.log custom;  # ← Включите логирование!
             expires 1y;
             add_header Cache-Control "public, max-age=31536000, immutable";
             try_files /static/$build_id/_next/static/$path =404;
         }
 
         # Остальные запросы без кэширования
-        #location / {
-        #    proxy_pass http://app_servers;
-        #    proxy_set_header Host $host;
-        #    proxy_set_header X-Real-IP $remote_addr;
-        #}
+        location / {
+            proxy_pass http://app_servers;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
     }
 } 

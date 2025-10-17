@@ -1,0 +1,41 @@
+// сборка проекта
+docker build \
+  -f docker/app/Dockerfile \
+  --build-arg GH_SHA=$(git tag --points-at HEAD) \
+  -t horizont-app:$(git tag --points-at HEAD) \
+  .
+
+
+//Достать статику из образа
+CONTAINER_ID=$(docker create horizont-app:$(git tag --points-at HEAD))
+# Прочитать BUILD_ID
+BUILD_ID=$(docker cp $CONTAINER_ID:/app/.next/BUILD_ID - | tar xO)
+echo "BUILD_ID: $BUILD_ID"
+
+# Скопировать static на хост
+docker cp $CONTAINER_ID:/app/.next/static ./temp-static
+
+# Удалить временный контейнер
+docker rm $CONTAINER_ID
+
+# Залить в volume
+docker run --rm \
+  -e BUILD_ID="$BUILD_ID" \
+  -v app_next_static:/dst \
+  -v "$PWD/temp-static":/src:ro \
+  alpine:3.20 sh -c '
+    mkdir -p "/dst/$BUILD_ID/_next"
+    cp -a /src "/dst/$BUILD_ID/_next/static"
+  '
+
+# Проверить структуру
+docker run --rm -e BUILD_ID="$BUILD_ID" -v app_next_static:/dst alpine:3.20 \
+  ls -la "/dst/$BUILD_ID/_next/"
+
+# Очистить
+rm -rf ./temp-static
+
+
+
+// запуск стека
+NGINX_PORT=3000 APP_PORT_LOCAL=3001 GH_SHA=$(git tag --points-at HEAD) docker stack deploy -c ./docker/docker-stack.yml app
