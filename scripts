@@ -18,10 +18,17 @@ docker cp $CONTAINER_ID:/app/.next/static ./temp-static
 # Удалить временный контейнер
 docker rm $CONTAINER_ID
 
+# Параметры для стека
+STACK_NAME=app
+VOLUME_NAME="${STACK_NAME}_next_static"
+
+# Создать volume если его нет
+docker volume create "$VOLUME_NAME" || true
+
 # Залить в volume
 docker run --rm \
   -e BUILD_ID="$BUILD_ID" \
-  -v app_next_static:/dst \
+  -v "${VOLUME_NAME}:/dst" \
   -v "$PWD/temp-static":/src:ro \
   alpine:3.20 sh -c '
     mkdir -p "/dst/$BUILD_ID/_next"
@@ -29,7 +36,7 @@ docker run --rm \
   '
 
 # Проверить структуру
-docker run --rm -e BUILD_ID="$BUILD_ID" -v app_next_static:/dst alpine:3.20 \
+docker run --rm -e BUILD_ID="$BUILD_ID" -v "${VOLUME_NAME}:/dst" alpine:3.20 \
   ls -la "/dst/$BUILD_ID/_next/"
 
 # Очистить
@@ -38,4 +45,5 @@ rm -rf ./temp-static
 
 
 // запуск стека
-NGINX_PORT=3000 APP_PORT_LOCAL=3001 GH_SHA=$(git tag --points-at HEAD) docker stack deploy -c ./docker/docker-stack.yml app
+STACK_NAME=app
+NGINX_PORT=3000 APP_PORT_LOCAL=3001 GH_SHA=$(git tag --points-at HEAD) docker stack deploy --prune -c ./docker/docker-stack.yml "$STACK_NAME"
