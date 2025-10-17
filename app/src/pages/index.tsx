@@ -39,7 +39,7 @@ export async function getServerSideProps() {
   console.log("version 5 server");
   return {
     props: {
-      version: "9",
+      version: "10",
     },
   };
 }
