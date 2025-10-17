@@ -1,1 +1,0 @@
-# horizontal-scaling-next-js
