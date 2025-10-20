@@ -1,0 +1,133 @@
+name: Build and Deploy
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      app_port:
+        description: "Порт приложения"
+        required: false
+        default: "3001"
+      nginx_port:
+        description: "Порт Nginx"
+        required: false
+        default: "3000"
+
+env:
+  STACK_NAME: app
+  APP_PORT_LOCAL: ${{ github.event.inputs.app_port || '3001' }}
+  NGINX_PORT: ${{ github.event.inputs.nginx_port || '3000' }}
+
+jobs:
+  build:
+    name: Сборка образа
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: ./build.sh
+        env:
+          GH_SHA: ${{ github.sha }}
+          APP_PORT_LOCAL: ${{ env.APP_PORT_LOCAL }}
+
+      - name: Save image
+        run: |
+          docker save horizont-app:${{ github.sha }} -o /tmp/app-image.tar
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image
+          path: /tmp/app-image.tar
+          retention-days: 1
+
+  extract-static:
+    name: Извлечение статики
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+          path: /tmp
+
+      - name: Load Docker image
+        run: |
+          docker load -i /tmp/app-image.tar
+
+      - name: Extract static files
+        run: ./extract-static.sh
+        env:
+          GH_SHA: ${{ github.sha }}
+          STACK_NAME: ${{ env.STACK_NAME }}
+
+      - name: Export static volume
+        run: |
+          # Создаем архив из volume
+          docker run --rm \
+            -v ${{ env.STACK_NAME }}_next_static:/data \
+            -v $PWD:/backup \
+            alpine:3.20 tar czf /backup/static-volume.tar.gz -C /data .
+
+      - name: Upload static artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-files
+          path: static-volume.tar.gz
+          retention-days: 1
+
+  deploy:
+    name: Деплой на сервер
+    runs-on: ubuntu-latest
+    needs: [build, extract-static]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image
+          path: /tmp
+
+      - name: Download static artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: static-files
+
+      # Для реального деплоя на удаленный сервер:
+      - name: Deploy to server
+        run: |
+          echo "Деплой на сервер..."
+          echo "GH_SHA: ${{ github.sha }}"
+          echo "APP_PORT_LOCAL: ${{ env.APP_PORT_LOCAL }}"
+          echo "NGINX_PORT: ${{ env.NGINX_PORT }}"
+
+          # Здесь должна быть логика деплоя на ваш сервер
+          # Например, через SSH или Docker context
+
+          # Для локального тестирования:
+          # docker load -i /tmp/app-image.tar
+          # docker volume create ${{ env.STACK_NAME }}_next_static || true
+          # tar xzf static-volume.tar.gz -C /tmp
+          # docker run --rm -v ${{ env.STACK_NAME }}_next_static:/data -v /tmp:/src alpine:3.20 cp -a /src/. /data/
+          # ./deploy.sh
+        env:
+          GH_SHA: ${{ github.sha }}
+          APP_PORT_LOCAL: ${{ env.APP_PORT_LOCAL }}
+          NGINX_PORT: ${{ env.NGINX_PORT }}
+          STACK_NAME: ${{ env.STACK_NAME }}

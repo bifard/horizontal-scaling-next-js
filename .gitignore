@@ -1,0 +1,30 @@
+# Deployment temporary files
+temp-static/
+*.tar.gz
+static-volume.tar.gz
+
+# act secrets and logs
+.secrets
+.env.local
+act.log
+
+# Docker temporary files
+/tmp/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+

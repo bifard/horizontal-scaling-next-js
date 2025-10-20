@@ -37,6 +37,7 @@ const Home = ({ version }: InferGetServerSidePropsType<typeof getServerSideProps
 export default Home;
 export async function getServerSideProps() {
   console.log("version 5 server");
+
   return {
     props: {
       version: "10",

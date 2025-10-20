@@ -1,0 +1,14 @@
+# Конфигурация act для локального тестирования GitHub Actions
+
+# Использовать средний образ Ubuntu (баланс между размером и функциональностью)
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+
+# Показывать детальный вывод
+-v
+
+# Переиспользовать контейнеры между запусками (быстрее)
+--reuse
+
+# Привязать Docker socket (для Docker-in-Docker)
+--container-daemon-socket /var/run/docker.sock
+
