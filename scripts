@@ -46,4 +46,4 @@ rm -rf ./temp-static
 
 // запуск стека
 STACK_NAME=app
-NGINX_PORT=3000 APP_PORT_LOCAL=3001 GH_SHA=$(git tag --points-at HEAD) docker stack deploy --prune -c ./docker/docker-stack.yml "$STACK_NAME"
+NGINX_PORT=3000 APP_PORT_LOCAL=3003 GH_SHA=$(git tag --points-at HEAD) docker stack deploy --prune -c ./docker/docker-stack.yml "$STACK_NAME"

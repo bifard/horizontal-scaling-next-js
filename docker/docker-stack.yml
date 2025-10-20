@@ -7,6 +7,8 @@ services:
       - "9000:${APP_PORT_LOCAL}"
     environment:
       - GH_SHA=${GH_SHA}
+      - PORT=${APP_PORT_LOCAL}
+
     volumes:
       - next_static:/app/.next/static:ro
     networks:
