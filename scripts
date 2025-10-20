@@ -1,7 +1,7 @@
 // сборка проекта
 docker build \
   -f docker/app/Dockerfile \
-  --build-arg GH_SHA=$(git tag --points-at HEAD) \
+  --build-arg GH_SHA=$(git tag --points-at HEAD) --build-arg PORT=3002 \
   -t horizont-app:$(git tag --points-at HEAD) \
   .
 
